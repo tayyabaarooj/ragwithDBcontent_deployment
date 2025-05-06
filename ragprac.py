@@ -16,8 +16,7 @@ texts = text_splitter.split_documents(pages)
 len(texts)
 embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
-
-client= MongoClient("mongodb+srv://rag_implement:123abc@cluster0.sfbmsvf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+client = MongoClient("mongodb+srv://rag_implement:123abc@cluster0.sfbmsvf.mongodb.net/?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=false")
 dbName= "newdatabase"
 collectionName= "resume"
 db= client[dbName]
