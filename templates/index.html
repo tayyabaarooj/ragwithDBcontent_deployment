@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RAG with MongoDB Content</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f8fb;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #222;
+            margin-bottom: 30px;
+        }
+
+        input[type="text"] {
+            width: 300px;
+            padding: 12px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 12px 18px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #response {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        #loading {
+            display: none;
+            margin-top: 15px;
+            font-style: italic;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>RAG WITH MONGODB CONTENT</h1>
+
+    <div>
+        <input type="text" id="query" placeholder="Enter your question" />
+        <button onclick="sendQuery()">Search</button>
+    </div>
+
+    <p id="loading">Loading answer, please wait...</p>
+    <p id="response"></p>
+
+    <script>
+        async function sendQuery() {
+            const query = document.getElementById("query").value;
+            const loadingEl = document.getElementById("loading");
+            const responseEl = document.getElementById("response");
+
+            if (!query.trim()) {
+                responseEl.innerText = "Please enter a question.";
+                return;
+            }
+
+            loadingEl.style.display = "block";
+            responseEl.innerText = "";
+
+            try {
+                const res = await fetch("/search", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query })
+                });
+                const data = await res.json();
+                responseEl.innerText = data.result || data.error;
+            } catch (error) {
+                responseEl.innerText = "An error occurred: " + error.message;
+            } finally {
+                loadingEl.style.display = "none";
+            }
+        }
+    </script>
+
+</body>
+</html>
