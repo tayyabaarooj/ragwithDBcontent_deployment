@@ -1,20 +1,21 @@
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_ollama import OllamaEmbeddings
 from pymongo import MongoClient
 from langchain_community.vectorstores import MongoDBAtlasVectorSearch
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
 from langchain_ollama import ChatOllama
-
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.llms import HuggingFacePipeline
+from transformers import pipeline
 loader = PyPDFLoader('ResumeTayyabaArooj.pdf')
 pages= loader.load()
 print(len(pages))
 text_splitter=RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap= 0)
 texts = text_splitter.split_documents(pages)
 len(texts)
+embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
-embeddings = OllamaEmbeddings(model="llama3")
 
 client= MongoClient("mongodb+srv://rag_implement:123abc@cluster0.sfbmsvf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 dbName= "newdatabase"
@@ -33,13 +34,10 @@ Answer the following question:
 Provide a answer below:
 """
 prompt = PromptTemplate(template=custom_prompt_template, input_variables=['context', 'question'])
-llm = ChatOllama(
-    model = "llama3",
-    temperature = 0.6,
-    num_predict = 256,
-    
-)
 
+
+pipe = pipeline("text-generation", model="gpt2", max_length=256)
+llm = HuggingFacePipeline(pipeline=pipe)
 qa=RetrievalQA.from_chain_type(
     llm=llm,
     chain_type='stuff',
@@ -47,7 +45,7 @@ qa=RetrievalQA.from_chain_type(
     chain_type_kwargs={"prompt":prompt},
 )
 
-query = "What is this resume about in mongodb atlas?"
+query = "see the newdatabse collection name resume , and share the funding amount for melanodtecetai in hkd?"
 
 def search_resume(query):
     result = qa.invoke({"query": query})['result']
